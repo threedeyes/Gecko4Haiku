@@ -1,6 +1,19 @@
-SUMMARY="Mozilla Firefox web browser"
-DESCRIPTION="An open-source web browser developed by the Mozilla Foundation, \
-designed for standards compliance, performance, and security."
+SUMMARY="A fast, private and open-source web browser"
+DESCRIPTION="Firefox is a free and open-source web browser developed by the \
+Mozilla Foundation and its contributors. Originally created as the spiritual \
+successor to Netscape Navigator and the Mozilla Application Suite, it is a \
+flagship open-web client built with a strong focus on privacy and standards.
+
+Under the hood, Firefox utilizes the Gecko layout engine and SpiderMonkey \
+JavaScript engine, leveraging modern C++ and Rust components to render the \
+web accurately and securely.
+
+Key features:
+* Built-in Enhanced Tracking Protection for privacy-focused browsing
+* Full support for modern web standards, including HTML5, CSS3, and WebAssembly
+* Rich ecosystem of WebExtensions and customizable themes
+* Flexible user profile management and tabbed browsing interface
+* Built from official upstream source code with platform-specific patches"
 HOMEPAGE="https://www.firefox.com/"
 COPYRIGHT="1995-2026 Mozilla Developers and Contributors"
 LICENSE="MPL v2.0"
@@ -41,6 +54,7 @@ REQUIRES="
 	lib:libgtk_3
 	lib:libharfbuzz
 	lib:libintl
+	lib:libjpeg
 	lib:libmediahelpers
 	lib:libnotify
 	lib:libnspr4
@@ -48,6 +62,9 @@ REQUIRES="
 	lib:libpango_1.0
 	lib:libpangocairo_1.0
 	lib:libpng16
+	lib:libvpx
+	lib:libwebp
+	lib:libzstd
 	lib:libz
 	"
 
@@ -58,14 +75,16 @@ BUILD_REQUIRES="
 	devel:libevent
 	devel:libglib_2.0
 	devel:libgtk_3
+	devel:libjpeg
 	devel:libmediahelpers
 	devel:libnotify
 	devel:libnspr4
 	devel:libnss3
 	devel:libpng16
-	devel:libvpx
+	devel:libvpx >= 8
 	devel:libwebp
 	devel:libzstd
+	devel:libz
 	"
 BUILD_PREREQUIRES="
 	llvm21
@@ -109,10 +128,8 @@ BUILD()
 	rm -f mozconfig
 	cp -f $portDir/additional-files/mozconfig mozconfig
 
-	#export DISABLE_ASLR=1
 	export MOZBUILD_STATE_PATH="$sourceDir/.mozconfig"
 	export RUSTFLAGS="-C link-arg=-Wl,--no-gc-sections"
-	#export __CARGO_DEFAULT_LIB_METADATA_SKIP_CHECKSUM=1
 
 	python3 -m ensurepip --default-pip
 
@@ -131,7 +148,6 @@ BUILD()
 
 INSTALL()
 {
-#	export DISABLE_ASLR=1
 	export MOZBUILD_STATE_PATH="$sourceDir/.mozconfig"
 
 	./mach install
